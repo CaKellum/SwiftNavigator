@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PathPrecondition: Identifiable, Hashable, Equatable, Sendable {
+public struct PathPrecondition: PathConforming {
     public var id: UUID = UUID()
     public var name: String
     public var shouldRoute: @Sendable (_ route: String) -> Bool

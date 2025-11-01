@@ -1,24 +1,16 @@
 import Combine
 import UIKit
 
-public protocol NavigatorDelegate {
-    func navigator(_ navigator: Navigator, shouldDispatch path: NavigatorPath) -> Bool
-    func navigator(_ navigator: Navigator, willDispatch path: NavigatorPath)
-    func navigator(_ navigator: Navigator, didDispatch path: NavigatorPath)
-    func navigator(_ navigator: Navigator, failedToDispatch path: String)
-}
-
-public actor Navigator {
+public actor Navigator<T: RawRepresentable & Sendable> where T.RawValue == String {
     private let navController: UINavigationController
-    public var delegate: (any NavigatorDelegate)?
-    private var paths = Set<NavigatorPath>()
+    private var paths = Set<NavigatorPath<T>>()
 
     public var topViewController: UIViewController? { get async { await navController.topViewController } }
     public var stack: [UIViewController] { get async { await navController.viewControllers } }
 
     init(navController: UINavigationController) { self.navController = navController }
 
-    public func register(path: NavigatorPath) { paths.insert(path) }
+    public func register(path: NavigatorPath<T>) { paths.insert(path) }
 
     public func dissmiss(animated: Bool = true) async {
         await MainActor.run {
@@ -28,16 +20,12 @@ public actor Navigator {
     }
 
     public func dispatch(for path: String) async {
-        guard let foundNavigatorPath = paths.first(where: { $0.path == path.pathWithOutParameters() }) else {
-            delegate?.navigator(self, failedToDispatch: path)
+        guard let foundNavigatorPath = paths.first(where: { $0.path.rawValue == path.pathWithOutParameters() }) else {
             return
         }
-        guard delegate?.navigator(self, shouldDispatch: foundNavigatorPath) ?? true else { return }
         guard foundNavigatorPath.preconditions.map({ $0.shouldRoute(path) }).allSatisfy({$0}) else { return }
-        delegate?.navigator(self, willDispatch: foundNavigatorPath)
         let vc = await foundNavigatorPath.action(path.getParameters())
         await MainActor.run { self.navController.pushViewController(vc, animated: foundNavigatorPath.animated) }
-        delegate?.navigator(self, didDispatch: foundNavigatorPath)
     }
 }
 
@@ -45,7 +33,6 @@ public actor Navigator {
 
 @MainActor
 extension Navigator {
-    public static let shared = Navigator(navController: UINavigationController())
 
     public func makeKeyAndVisible(window: inout UIWindow) {
         window.rootViewController = navController
@@ -62,5 +49,14 @@ extension Navigator {
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
         navController.present(vc, animated: animated, completion: completion)
+    }
+
+    public func setNavBarImage(_ image: UIImage? = nil) {
+        let imageView = UIImageView(image: image)
+        navController.navigationItem.titleView = imageView
+    }
+
+    public func hideNavBar(_ hide: Bool) {
+        navController.navigationBar.isHidden = true
     }
 }

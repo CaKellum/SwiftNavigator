@@ -1,14 +1,21 @@
 import Foundation
 import UIKit
 
-public struct NavigatorPath: Identifiable, Hashable, Sendable, Equatable {
+// idea being that you can store
+public protocol PathRegistrar {
+    func registerAll() async -> Bool
+}
+
+protocol PathConforming: Identifiable, Hashable, Sendable, Equatable {}
+
+public struct NavigatorPath<T: RawRepresentable & Sendable>: PathConforming where T.RawValue == String {
     public let id: UUID = UUID()
     public let preconditions: [PathPrecondition]
-    public let path: String
+    public let path: T
     public let animated: Bool
     public let action: @Sendable (_ parameters: [String: String]) async -> UIViewController
 
-    public init(path: String, preconditions: [PathPrecondition] = [],
+    public init(path: T, preconditions: [PathPrecondition] = [],
                 animated: Bool = true, action: @Sendable @escaping (_: [String : String]) async -> UIViewController) {
         self.preconditions = preconditions
         self.path = path
@@ -18,7 +25,7 @@ public struct NavigatorPath: Identifiable, Hashable, Sendable, Equatable {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-        hasher.combine(path)
+        hasher.combine(path.rawValue)
         hasher.combine(animated)
     }
 

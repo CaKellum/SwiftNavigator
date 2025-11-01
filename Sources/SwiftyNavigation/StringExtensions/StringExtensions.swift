@@ -31,6 +31,4 @@ public extension String {
         guard let url = URL(string: self) else { return self }
         return url.path(percentEncoded: false)
     }
-
-    func dispatch() async { await Navigator.shared.dispatch(for: self) }
 }
