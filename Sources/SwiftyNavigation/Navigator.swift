@@ -2,23 +2,23 @@ import Combine
 import UIKit
 
 public protocol NavigatorDelegate {
-    func navigator(_ navigator: Navigator, shouldDispatch path: Path) -> Bool
-    func navigator(_ navigator: Navigator, willDispatch path: Path)
-    func navigator(_ navigator: Navigator, didDispatch path: Path)
+    func navigator(_ navigator: Navigator, shouldDispatch path: NavigationPath) -> Bool
+    func navigator(_ navigator: Navigator, willDispatch path: NavigationPath)
+    func navigator(_ navigator: Navigator, didDispatch path: NavigationPath)
     func navigator(_ navigator: Navigator, failedToDispatch path: String)
 }
 
 public actor Navigator {
     private let navController: UINavigationController
     public var delegate: (any NavigatorDelegate)?
-    private var paths = Set<Path>()
+    private var paths = Set<NavigationPath>()
 
     var topViewController: UIViewController? { get async { await navController.topViewController } }
     var stack: [UIViewController] { get async { await navController.viewControllers } }
 
     init(navController: UINavigationController) { self.navController = navController }
 
-    public func register(path: Path) { paths.insert(path) }
+    public func register(path: NavigationPath) { paths.insert(path) }
 
     public func dissmiss(animated: Bool = true) async {
         await MainActor.run {
@@ -28,16 +28,16 @@ public actor Navigator {
     }
 
     public func dispatch(for path: String) async {
-        guard let foundPath = paths.first(where: { $0.path == path.pathWithOutParameters() }) else {
+        guard let foundNavigationPath = paths.first(where: { $0.path == path.pathWithOutParameters() }) else {
             delegate?.navigator(self, failedToDispatch: path)
             return
         }
-        guard delegate?.navigator(self, shouldDispatch: foundPath) ?? true else { return }
-        guard foundPath.preconditions.map({ $0.shouldRoute(path) }).allSatisfy({$0}) else { return }
-        delegate?.navigator(self, willDispatch: foundPath)
-        let vc = await foundPath.action(path.getParameters())
-        await MainActor.run { self.navController.pushViewController(vc, animated: foundPath.animated) }
-        delegate?.navigator(self, didDispatch: foundPath)
+        guard delegate?.navigator(self, shouldDispatch: foundNavigationPath) ?? true else { return }
+        guard foundNavigationPath.preconditions.map({ $0.shouldRoute(path) }).allSatisfy({$0}) else { return }
+        delegate?.navigator(self, willDispatch: foundNavigationPath)
+        let vc = await foundNavigationPath.action(path.getParameters())
+        await MainActor.run { self.navController.pushViewController(vc, animated: foundNavigationPath.animated) }
+        delegate?.navigator(self, didDispatch: foundNavigationPath)
     }
 }
 
