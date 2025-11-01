@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public struct NavigationPath: Identifiable, Hashable, Sendable, Equatable {
+public struct NavigatorPath: Identifiable, Hashable, Sendable, Equatable {
     public let id: UUID = UUID()
     public let preconditions: [PathPrecondition]
     public let path: String
