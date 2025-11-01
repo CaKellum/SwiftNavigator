@@ -11,14 +11,14 @@ public protocol NavigatorDelegate {
 public actor Navigator {
     private let navController: UINavigationController
     public var delegate: (any NavigatorDelegate)?
-    private var paths = [Path]()
+    private var paths = Set<Path>()
 
     var topViewController: UIViewController? { get async { await navController.topViewController } }
     var stack: [UIViewController] { get async { await navController.viewControllers } }
 
     init(navController: UINavigationController) { self.navController = navController }
 
-    public func register(route: Path) { paths.append(route) }
+    public func register(path: Path) { paths.insert(path) }
 
     public func dissmiss(animated: Bool = true) async {
         await MainActor.run {

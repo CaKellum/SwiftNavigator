@@ -8,6 +8,14 @@ public struct Path: Identifiable, Hashable, Sendable, Equatable {
     public let animated: Bool
     public let action: @Sendable (_ parameters: [String: String]) async -> UIViewController
 
+    public init(path: String, preconditions: [PathPrecondition] = [],
+                animated: Bool = true, action: @Sendable @escaping (_: [String : String]) async -> UIViewController) {
+        self.preconditions = preconditions
+        self.path = path
+        self.animated = animated
+        self.action = action
+    }
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(path)

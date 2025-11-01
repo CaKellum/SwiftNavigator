@@ -5,6 +5,11 @@ public struct PathPrecondition: Identifiable, Hashable, Equatable, Sendable {
     public var name: String
     public var shouldRoute: @Sendable (_ route: String) -> Bool
 
+    public init(name: String, shouldRoute: @Sendable @escaping (_: String) -> Bool) {
+        self.name = name
+        self.shouldRoute = shouldRoute
+    }
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(name)
