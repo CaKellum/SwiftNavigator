@@ -33,6 +33,7 @@ public actor Navigator {
             return
         }
         guard delegate?.navigator(self, shouldDispatch: foundPath) ?? true else { return }
+        guard foundPath.preconditions.map({ $0.shouldRoute(path) }).allSatisfy({$0}) else { return }
         delegate?.navigator(self, willDispatch: foundPath)
         let vc = await foundPath.action(path.getParameters())
         await MainActor.run { self.navController.pushViewController(vc, animated: foundPath.animated) }
