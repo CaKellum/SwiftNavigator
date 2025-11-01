@@ -15,5 +15,5 @@ public struct PathPrecondition: PathConforming {
         hasher.combine(name)
     }
 
-    public static func ==(lhs: Self, rhs: Self) -> Bool { lhs.name == rhs.name }
+    public static func == (lhs: Self, rhs: Self) -> Bool { lhs.name == rhs.name }
 }

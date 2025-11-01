@@ -16,7 +16,7 @@ public struct NavigatorPath<T: RawRepresentable & Sendable>: PathConforming wher
     public let action: @Sendable (_ parameters: [String: String]) async -> UIViewController
 
     public init(path: T, preconditions: [PathPrecondition] = [],
-                animated: Bool = true, action: @Sendable @escaping (_: [String : String]) async -> UIViewController) {
+                animated: Bool = true, action: @Sendable @escaping (_: [String: String]) async -> UIViewController) {
         self.preconditions = preconditions
         self.path = path
         self.animated = animated

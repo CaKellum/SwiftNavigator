@@ -24,8 +24,10 @@ public actor Navigator<T: RawRepresentable & Sendable> where T.RawValue == Strin
             return
         }
         guard foundNavigatorPath.preconditions.map({ $0.shouldRoute(path) }).allSatisfy({$0}) else { return }
-        let vc = await foundNavigatorPath.action(path.getParameters())
-        await MainActor.run { self.navController.pushViewController(vc, animated: foundNavigatorPath.animated) }
+        let viewController = await foundNavigatorPath.action(path.getParameters())
+        await MainActor.run {
+            self.navController.pushViewController(viewController, animated: foundNavigatorPath.animated)
+        }
     }
 }
 
@@ -39,16 +41,16 @@ extension Navigator {
         window.makeKeyAndVisible()
     }
 
-    public func present(vc: UIViewController, animated: Bool = true,
+    public func present(_ viewController: UIViewController, animated: Bool = true,
                         detents: [UISheetPresentationController.Detent] = [.large()],
                         completion: @escaping @Sendable () -> Void = {}) {
-        if let sheet = vc.sheetPresentationController {
+        if let sheet = viewController.sheetPresentationController {
             sheet.detents = detents
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
             sheet.prefersEdgeAttachedInCompactHeight = true
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
-        navController.present(vc, animated: animated, completion: completion)
+        navController.present(viewController, animated: animated, completion: completion)
     }
 
     public func setNavBarImage(_ image: UIImage? = nil) {
