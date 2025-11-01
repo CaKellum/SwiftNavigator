@@ -13,8 +13,8 @@ public actor Navigator {
     public var delegate: (any NavigatorDelegate)?
     private var paths = Set<NavigatorPath>()
 
-    var topViewController: UIViewController? { get async { await navController.topViewController } }
-    var stack: [UIViewController] { get async { await navController.viewControllers } }
+    public var topViewController: UIViewController? { get async { await navController.topViewController } }
+    public var stack: [UIViewController] { get async { await navController.viewControllers } }
 
     init(navController: UINavigationController) { self.navController = navController }
 
