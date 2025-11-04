@@ -45,7 +45,7 @@ public actor Navigator<T: RawRepresentable & Sendable> where T.RawValue == Strin
     ///
     /// - Parameter navController: The navigation controller that the
     ///   navigator will manage.
-    init(navController: UINavigationController) { self.navController = navController }
+    public init(navController: UINavigationController) { self.navController = navController }
 
     /// Registers a new `NavigatorPath` so that it can be used for
     /// dispatching routes.
