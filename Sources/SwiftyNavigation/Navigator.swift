@@ -122,9 +122,8 @@ public actor Navigator<T: RawRepresentable & Sendable> where T.RawValue == Strin
         guard let foundNavigatorPath = paths.first(where: { $0.path.rawValue == path.pathWithOutParameters() }) else {
             return
         }
-        let preconditions = foundNavigatorPath.preconditions.map({ $0.shouldRoute })
         var results = [Bool]()
-        for completion in preconditions { results.append(await completion(path)) }
+        for completion in foundNavigatorPath.preconditions.map({ $0.shouldRoute }) { results.append(await completion(path)) }
         guard results.allSatisfy({$0}) else { return }
         let viewController = await foundNavigatorPath.action(path.getParameters())
         await MainActor.run {
